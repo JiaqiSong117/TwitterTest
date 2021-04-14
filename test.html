@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <title>Simple use of Cross-Site XMLHttpRequest (Using Access Control)</title>
+
+
+    <style>
+        html,
+        pre {
+            font-family: sans-serif;
+        }
+
+        body {
+            width: 500px;
+            margin: 0 auto;
+            background-color: #ccc;
+        }
+
+        pre {
+            line-height: 1.5;
+            letter-spacing: 0.05rem;
+            padding: 1rem;
+            background-color: white;
+        }
+
+        label {
+            width: 200px;
+            margin-right: 33px;
+        }
+
+        select {
+            width: 350px;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="controlsToInvoke" action="">
+        <p>
+            <input type="button" value="Click to Invoke Another Site" onclick="callOtherDomain()" />
+        </p>
+    </form>
+    <pre id = "test"> 
+
+    </pre>
+
+    <script type="text/javascript">
+        //<![CDATA[
+
+        var invocation = new XMLHttpRequest();
+        var url = 'https://filterbubbleflask.azurewebsites.net/api/tasks/MonashUni';
+        var invocationHistoryText;
+
+        function callOtherDomain() {
+            if (invocation) {
+                invocation.open('GET', url, true);
+                invocation.onreadystatechange = handler;
+                invocation.send();
+            } else {
+                invocationHistoryText = "No Invocation TookPlace At All";
+                var textNode = document.createTextNode(invocationHistoryText);
+                var textDiv = document.getElementById("textDiv");
+                textDiv.appendChild(textNode);
+            }
+
+        }
+
+        function handler(evtXHR) {
+            if (invocation.readyState == 4) {
+                if (invocation.status == 200) {
+                    var response = invocation.response;
+                    console.log(invocation.response);
+                    document.getElementById('test').textContent = response;
+                    // var invocationHistory = response.getElementsByTagName('invocationHistory').item(0).firstChild.data;
+                    // invocationHistoryText = document.createTextNode(invocationHistory);
+                    // var textDiv = document.getElementById("textDiv");
+                    // textDiv.appendChild(invocationHistoryText);
+                } else
+                    alert("Invocation Errors Occured");
+            } else
+                dump("currently the application is at" + invocation.readyState);
+        }
+        //]]>
+    </script>
+</body>
+
+</html>

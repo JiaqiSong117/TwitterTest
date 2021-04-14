@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>tableTest</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/Login-Form-Clean.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="table-responsive">
+                    <div>
+                        <input type="text" id="id" placeholder="twitter name">
+                        <input type="button" value="add" id="btn_add">
+                        <input type="button" value="search" onclick="callOtherDomain()">
+                    </div>
+                    <table>
+                        <tr>
+                            <th>TwitterUser</th>
+                            <th>Option</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div id="chart_div"></div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+        //create ele
+        var btn_add = document.getElementById("btn_add");
+
+        btn_add.onclick = function () {
+            var idObject = document.getElementById("id");
+            var id = idObject.value;
+            //col
+            var td_id = document.createElement("td");
+            var text_id = document.createTextNode(id);
+            td_id.appendChild(text_id);
+            //del
+            var td_a = document.createElement("td");
+            var ele_a = document.createElement("a");
+            ele_a.setAttribute("href", "javascript:void(0);");
+            ele_a.setAttribute("onclick", "delTr(this);");
+            var text_a = document.createTextNode("delete");
+            ele_a.appendChild(text_a);
+            td_a.appendChild(ele_a);
+            //create tr
+            var tr = document.createElement("tr");
+            tr.appendChild(td_id);
+            tr.appendChild(td_a);
+            //get table
+            var table = document.getElementsByTagName("table")[0];
+            table.appendChild(tr);
+        }
+
+        function delTr(obj) {
+            var table = obj.parentNode.parentNode.parentNode;
+            var tr = obj.parentNode.parentNode;
+            table.removeChild(tr);
+        }
+        //get table ele
+
+
+
+        //run api
+        //<![CDATA[
+
+        var invocation = new XMLHttpRequest();
+        //access api
+        var url = 'https://filterbubbleflask.azurewebsites.net/api/tasks/MonashUni';
+        var invocationHistoryText;
+
+        function callOtherDomain() {
+            if (invocation) {
+                invocation.open('GET', url, true);
+                invocation.onreadystatechange = handler;
+                invocation.send();
+            } else {
+                invocationHistoryText = "No Invocation TookPlace At All";
+                var textNode = document.createTextNode(invocationHistoryText);
+                var textDiv = document.getElementById("textDiv");
+                textDiv.appendChild(textNode);
+            }
+
+        }
+
+        function handler(evtXHR) {
+            if (invocation.readyState == 4) {
+                if (invocation.status == 200) {
+                    var response = invocation.response;
+                    console.log(invocation.response);
+                    // document.getElementById('test').textContent = response;
+                    // var invocationHistory = response.getElementsByTagName('invocationHistory').item(0).firstChild.data;
+                    // invocationHistoryText = document.createTextNode(invocationHistory);
+                    // var textDiv = document.getElementById("textDiv");
+                    // textDiv.appendChild(invocationHistoryText);
+                } else
+                    alert("Invocation Errors Occured");
+            } else
+                dump("currently the application is at" + invocation.readyState);
+        }
+        //]]>
+   
+
+
+
+        //chart
+        google.charts.load('current', {
+            packages: ['corechart', 'bar']
+        });
+        google.charts.setOnLoadCallback(drawBarColors);
+
+        var c = [
+                ['Category', 'MonashUni','BarackObama', {
+                        role: 'annotation'
+                    }
+                ],
+                ['WOMEN', 10, 25, ''],
+                ['BUSINESS', 16, 0,''],
+                ['POLITICS', 28, 30, ''],
+                ['CRIME',0, 15,'']
+            ];
+
+        function drawBarColors() {
+            var data = google.visualization.arrayToDataTable(
+                c
+                );
+
+            var options = {
+                width: 600,
+                height: 400,
+                legend: {
+                    position: 'top',
+                    maxLines: 3
+                },
+                bar: {
+                    groupWidth: '75%'
+                },
+                isStacked: true
+            };
+            var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+    </script>
+
+</body>
+
+</html>
