@@ -74,6 +74,8 @@
 
 
         //run api
+        //running def
+        sessionStorage.apijson = '{"result":true, "count":42}';
         //<![CDATA[
 
         var invocation = new XMLHttpRequest();
@@ -88,9 +90,6 @@
                 invocation.send();
             } else {
                 invocationHistoryText = "No Invocation TookPlace At All";
-                var textNode = document.createTextNode(invocationHistoryText);
-                var textDiv = document.getElementById("textDiv");
-                textDiv.appendChild(textNode);
             }
 
         }
@@ -98,22 +97,41 @@
         function handler(evtXHR) {
             if (invocation.readyState == 4) {
                 if (invocation.status == 200) {
+                    //get API json
                     var response = invocation.response;
                     console.log(invocation.response);
-                    // document.getElementById('test').textContent = response;
-                    // var invocationHistory = response.getElementsByTagName('invocationHistory').item(0).firstChild.data;
-                    // invocationHistoryText = document.createTextNode(invocationHistory);
-                    // var textDiv = document.getElementById("textDiv");
-                    // textDiv.appendChild(invocationHistoryText);
+                    // sessionStorage.apijson = JSON.parse(response);
+                    sessionStorage.setItem("apijson", JSON.parse(response));
+                    //testing Json
+                    var obj = JSON.parse(sessionStorage.getItem("apijson"));
+                    console.log(obj.WOMEN);
+
                 } else
                     alert("Invocation Errors Occured");
             } else
-                dump("currently the application is at" + invocation.readyState);
+                console.log("currently the application is at" + invocation.readyState);
         }
         //]]>
-   
+
+        //api json --> chart list
+        
+        
 
 
+
+        var c = [
+            ['Category', 'MonashUni', 'BarackObama', {
+                role: 'annotation'
+            }],
+            ['WOMEN', 10, 25, ''],
+            ['BUSINESS', 16, 0, ''],
+            ['POLITICS', 28, 30, ''],
+            ['CRIME', 0, 15, '']
+        ];
+
+        function jsonToList(json) {
+
+        }
 
         //chart
         google.charts.load('current', {
@@ -121,21 +139,12 @@
         });
         google.charts.setOnLoadCallback(drawBarColors);
 
-        var c = [
-                ['Category', 'MonashUni','BarackObama', {
-                        role: 'annotation'
-                    }
-                ],
-                ['WOMEN', 10, 25, ''],
-                ['BUSINESS', 16, 0,''],
-                ['POLITICS', 28, 30, ''],
-                ['CRIME',0, 15,'']
-            ];
+
 
         function drawBarColors() {
             var data = google.visualization.arrayToDataTable(
                 c
-                );
+            );
 
             var options = {
                 width: 600,
