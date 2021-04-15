@@ -29,9 +29,9 @@
                     </table>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div id="chart_div"></div>
-            </div>
+        </div>
+        <div>
+            <div id="chart_div"></div>
         </div>
     </div>
     <script src="assets/js/jquery.min.js"></script>
@@ -80,6 +80,7 @@
             }
             return str;
         }
+
         //run api
         var invocation = new XMLHttpRequest();
         //<![CDATA[
@@ -97,7 +98,6 @@
             } else {
                 invocationHistoryText = "No Invocation TookPlace At All";
             }
-
         }
 
         function handler(evtXHR) {
@@ -118,32 +118,15 @@
         //]]>
 
         //api json --> chart list
-        var category = ['ARTS',
-            'BLACK VOICES',
-            'BUSINESS',
-            'COMEDY',
-            'CRIME',
-            'DIVORCE',
-            'ENTERTAINMENT',
-            'FIFTY',
-            'GREEN',
-            'HEALTHY LIVING',
-            'IMPACT',
-            'MEDIA',
-            'MONEY',
-            'PARENTING',
-            'POLITICS',
-            'SCIENCE',
-            'SPORTS',
-            'STYLE',
-            'STYLE & BEAUTY',
-            'TASTE',
-            'TECH',
-            'TRAVEL',
-            'WEIRD NEWS',
-            'WELLNESS',
-            'WOMEN'
-        ]
+
+        function getJsonLength(jsonData) {
+            var length = 0;
+            for (var ever in jsonData) {
+                length++;
+            }
+            return length;
+        }
+
 
         function jsonToChart() {
             var obj = JSON.parse(sessionStorage.getItem("apijson"));
@@ -153,8 +136,11 @@
                     role: 'annotation'
                 }],
                 ['ARTS', ''],
+                ['ARTS & CULTURE', ''],
                 ['BLACK VOICES', ''],
                 ['BUSINESS', ''],
+                ['COMEDY',''],
+                ['COLLEGE',''],
                 ['DIVORCE', ''],
                 ['ENTERTAINMENT', ''],
                 ['FIFTY', ''],
@@ -165,21 +151,32 @@
                 ['MONEY', ''],
                 ['PARENTING', ''],
                 ['POLITICS', ''],
+                ['QUEER VOICES', ''],
                 ['SCIENCE', ''],
                 ['SPORTS', ''],
                 ['STYLE', ''],
                 ['STYLE & BEAUTY', ''],
                 ['TASTE', ''],
                 ['TECH', ''],
+                ['THE WORLDPOST',''],
                 ['TRAVEL', ''],
+                ['WEDDINGS',''],
                 ['WEIRD NEWS', ''],
                 ['WELLNESS', ''],
                 ['WOMEN', '']
             ];
 
+
             //add TwitterUsername Single
-            data[0].splice(-1,0,sessionStorage.getItem("table"));
+            data[0].splice(-1, 0, sessionStorage.getItem("table"));
             //console.log(data[0])
+                for(var j = 1; j < data.length; j++){
+                    var add = obj[data[j][0]];
+                    if(add == null){
+                        add = 0;
+                    }
+                    data[j].splice(-1,0,add);
+                }
             return data;
         }
 
@@ -199,7 +196,7 @@
             );
 
             var options = {
-                width: 600,
+                width: 800,
                 height: 1000,
                 legend: {
                     position: 'top',
