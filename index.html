@@ -21,7 +21,7 @@
                         <input type="button" value="add" id="btn_add">
                         <input type="button" value="search" onclick="callOtherDomain()">
                     </div>
-                    <table>
+                    <table id="tab">
                         <tr>
                             <th>TwitterUser</th>
                             <th>Option</th>
@@ -62,6 +62,8 @@
             //get table
             var table = document.getElementsByTagName("table")[0];
             table.appendChild(tr);
+
+            sessionStorage.table = getTdValue();
         }
 
         function delTr(obj) {
@@ -69,25 +71,29 @@
             var tr = obj.parentNode.parentNode;
             table.removeChild(tr);
         }
-        //get table ele
-
-
-
+        //get table ele (store in sessionStorage key = table)
+        function getTdValue() {
+            var tableId = document.getElementById("tab");
+            var str = new Array;
+            for (var i = 1; i < tableId.rows.length; i++) {
+                str[i - 1] = tableId.rows[i].cells[0].innerHTML;
+            }
+            return str;
+        }
         //run api
-        //running def
-        sessionStorage.apijson = '{"result":true, "count":42}';
-        //<![CDATA[
-
         var invocation = new XMLHttpRequest();
-        //access api
-        var url = 'https://filterbubbleflask.azurewebsites.net/api/tasks/MonashUni';
-        var invocationHistoryText;
-
+        //<![CDATA[
         function callOtherDomain() {
+            //access api
+            //single test
+            var url = 'https://filterbubbleflask.azurewebsites.net/api/tasks/' + sessionStorage.getItem("table");
+            console.log(url);
+            var invocationHistoryText;
             if (invocation) {
                 invocation.open('GET', url, true);
                 invocation.onreadystatechange = handler;
                 invocation.send();
+                //
             } else {
                 invocationHistoryText = "No Invocation TookPlace At All";
             }
@@ -103,9 +109,7 @@
                     // sessionStorage.apijson = JSON.parse(response);
                     sessionStorage.setItem("apijson", JSON.parse(response));
                     //testing Json
-                    var obj = JSON.parse(sessionStorage.getItem("apijson"));
-                    console.log(obj.WOMEN);
-
+                    google.charts.setOnLoadCallback(drawBarColors);
                 } else
                     alert("Invocation Errors Occured");
             } else
@@ -114,41 +118,89 @@
         //]]>
 
         //api json --> chart list
-        
-        
+        var category = ['ARTS',
+            'BLACK VOICES',
+            'BUSINESS',
+            'COMEDY',
+            'CRIME',
+            'DIVORCE',
+            'ENTERTAINMENT',
+            'FIFTY',
+            'GREEN',
+            'HEALTHY LIVING',
+            'IMPACT',
+            'MEDIA',
+            'MONEY',
+            'PARENTING',
+            'POLITICS',
+            'SCIENCE',
+            'SPORTS',
+            'STYLE',
+            'STYLE & BEAUTY',
+            'TASTE',
+            'TECH',
+            'TRAVEL',
+            'WEIRD NEWS',
+            'WELLNESS',
+            'WOMEN'
+        ]
 
+        function jsonToChart() {
+            var obj = JSON.parse(sessionStorage.getItem("apijson"));
+            //console.log(obj);
+            var data = [
+                ['Category', {
+                    role: 'annotation'
+                }],
+                ['ARTS', ''],
+                ['BLACK VOICES', ''],
+                ['BUSINESS', ''],
+                ['DIVORCE', ''],
+                ['ENTERTAINMENT', ''],
+                ['FIFTY', ''],
+                ['GREEN', ''],
+                ['HEALTHY LIVING', ''],
+                ['IMPACT', ''],
+                ['MEDIA', ''],
+                ['MONEY', ''],
+                ['PARENTING', ''],
+                ['POLITICS', ''],
+                ['SCIENCE', ''],
+                ['SPORTS', ''],
+                ['STYLE', ''],
+                ['STYLE & BEAUTY', ''],
+                ['TASTE', ''],
+                ['TECH', ''],
+                ['TRAVEL', ''],
+                ['WEIRD NEWS', ''],
+                ['WELLNESS', ''],
+                ['WOMEN', '']
+            ];
 
-
-        var c = [
-            ['Category', 'MonashUni', 'BarackObama', {
-                role: 'annotation'
-            }],
-            ['WOMEN', 10, 25, ''],
-            ['BUSINESS', 16, 0, ''],
-            ['POLITICS', 28, 30, ''],
-            ['CRIME', 0, 15, '']
-        ];
-
-        function jsonToList(json) {
-
+            //add TwitterUsername Single
+            data[0].splice(-1,0,sessionStorage.getItem("table"));
+            //console.log(data[0])
+            return data;
         }
+
 
         //chart
         google.charts.load('current', {
             packages: ['corechart', 'bar']
         });
+        //active chart
         google.charts.setOnLoadCallback(drawBarColors);
 
-
-
         function drawBarColors() {
+            var c = jsonToChart();
+            //console.log(c);
             var data = google.visualization.arrayToDataTable(
                 c
             );
 
             var options = {
                 width: 600,
-                height: 400,
+                height: 1000,
                 legend: {
                     position: 'top',
                     maxLines: 3
