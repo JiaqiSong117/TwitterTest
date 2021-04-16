@@ -17,7 +17,28 @@
             <div class="col-md-6">
                 <div class="table-responsive">
                     <div>
-                        <input type="text" id="id" placeholder="twitter name">
+                        <!-- <input type="button" value="test" onclick="jsonToChart()"> -->
+                        <h1>
+                            Twitter Analytics 2.0
+                        </h1>
+                        <p>
+                            1. Create a combination
+                            Use the input field to enter the Twitter username you want to analyze (for example, if you
+                            want to analyze @WarThunder, enter WarThunder), add the Twitter username to the form by
+                            clicking the Add button, and you can add the Twitter username by repeating this action. The
+                            table below the input box will show you the Twitter usernames you have added.
+                        </p>
+                        <p>
+                            2. When you have finished creating your combination, analyze it via the search button and
+                            the results will be displayed in the chart below.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="table-responsive">
+                    <div>
+                        <input type="text" id="id" placeholder="@twitter">
                         <input type="button" value="add" id="btn_add">
                         <input type="button" value="search" onclick="callOtherDomain()">
                     </div>
@@ -27,16 +48,58 @@
                             <th>Option</th>
                         </tr>
                     </table>
+                    <p id = "load"></p>
                 </div>
             </div>
         </div>
-        <div>
-            <div id="chart_div"></div>
+        <div class="row">
+            <div class="col-md-12"></div>
+            <div class="table-responsive">
+                <div id="chart_div"></div>
+            </div>
         </div>
+    </div>
+
+
     </div>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script>
+        //create data
+        var dataset = [
+            ['Category', {
+                role: 'annotation'
+            }],
+            ['ARTS', ''],
+            ['ARTS & CULTURE', ''],
+            ['BLACK VOICES', ''],
+            ['BUSINESS', ''],
+            ['COMEDY', ''],
+            ['COLLEGE', ''],
+            ['DIVORCE', ''],
+            ['ENTERTAINMENT', ''],
+            ['FIFTY', ''],
+            ['GREEN', ''],
+            ['HEALTHY LIVING', ''],
+            ['IMPACT', ''],
+            ['MEDIA', ''],
+            ['MONEY', ''],
+            ['PARENTING', ''],
+            ['POLITICS', ''],
+            ['QUEER VOICES', ''],
+            ['SCIENCE', ''],
+            ['SPORTS', ''],
+            ['STYLE', ''],
+            ['STYLE & BEAUTY', ''],
+            ['TASTE', ''],
+            ['TECH', ''],
+            ['THE WORLDPOST', ''],
+            ['TRAVEL', ''],
+            ['WEDDINGS', ''],
+            ['WEIRD NEWS', ''],
+            ['WELLNESS', ''],
+            ['WOMEN', '']
+        ];
         //create ele
         var btn_add = document.getElementById("btn_add");
 
@@ -62,8 +125,7 @@
             //get table
             var table = document.getElementsByTagName("table")[0];
             table.appendChild(tr);
-
-            sessionStorage.table = getTdValue();
+            document.getElementById("id").value = ""
         }
 
         function delTr(obj) {
@@ -72,7 +134,7 @@
             table.removeChild(tr);
         }
         //get table ele (store in sessionStorage key = table)
-        function getTdValue() {
+        function getTbValue() {
             var tableId = document.getElementById("tab");
             var str = new Array;
             for (var i = 1; i < tableId.rows.length; i++) {
@@ -87,14 +149,27 @@
         function callOtherDomain() {
             //access api
             //single test
-            var url = 'https://filterbubbleflask.azurewebsites.net/api/tasks/' + sessionStorage.getItem("table");
+            var accountusers = getTbValue();
+            //console.log(accountusers);
+            var input = "?";
+            for (var i = 0; i < accountusers.length; i++) {
+                if (i != 0) {
+                    input += ("&")
+                }
+                input += (i + 1);
+                input += ("=")
+                input += accountusers[i];
+            }
+            //console.log(input);
+
+            var url = 'https://filterbubbleflask.azurewebsites.net/api/tasks/CombinedSearch/' + input;
             console.log(url);
+            document.getElementById("load").innerHTML="loading";
             var invocationHistoryText;
             if (invocation) {
                 invocation.open('GET', url, true);
                 invocation.onreadystatechange = handler;
                 invocation.send();
-                //
             } else {
                 invocationHistoryText = "No Invocation TookPlace At All";
             }
@@ -105,10 +180,11 @@
                 if (invocation.status == 200) {
                     //get API json
                     var response = invocation.response;
-                    console.log(invocation.response);
+                    //console.log(invocation.response);
                     // sessionStorage.apijson = JSON.parse(response);
                     sessionStorage.setItem("apijson", JSON.parse(response));
                     //testing Json
+                    jsonToChart(JSON.parse(response));
                     google.charts.setOnLoadCallback(drawBarColors);
                 } else
                     alert("Invocation Errors Occured");
@@ -128,56 +204,37 @@
         }
 
 
-        function jsonToChart() {
-            var obj = JSON.parse(sessionStorage.getItem("apijson"));
-            //console.log(obj);
-            var data = [
+        function jsonToChart(jsonfile) {
+            var obj = JSON.parse(jsonfile);
+            console.log(obj);
+            newdataset = [
                 ['Category', {
                     role: 'annotation'
-                }],
-                ['ARTS', ''],
-                ['ARTS & CULTURE', ''],
-                ['BLACK VOICES', ''],
-                ['BUSINESS', ''],
-                ['COMEDY',''],
-                ['COLLEGE',''],
-                ['DIVORCE', ''],
-                ['ENTERTAINMENT', ''],
-                ['FIFTY', ''],
-                ['GREEN', ''],
-                ['HEALTHY LIVING', ''],
-                ['IMPACT', ''],
-                ['MEDIA', ''],
-                ['MONEY', ''],
-                ['PARENTING', ''],
-                ['POLITICS', ''],
-                ['QUEER VOICES', ''],
-                ['SCIENCE', ''],
-                ['SPORTS', ''],
-                ['STYLE', ''],
-                ['STYLE & BEAUTY', ''],
-                ['TASTE', ''],
-                ['TECH', ''],
-                ['THE WORLDPOST',''],
-                ['TRAVEL', ''],
-                ['WEDDINGS',''],
-                ['WEIRD NEWS', ''],
-                ['WELLNESS', ''],
-                ['WOMEN', '']
+                }]
             ];
 
-
-            //add TwitterUsername Single
-            data[0].splice(-1, 0, sessionStorage.getItem("table"));
-            //console.log(data[0])
-                for(var j = 1; j < data.length; j++){
-                    var add = obj[data[j][0]];
-                    if(add == null){
-                        add = 0;
+            var accountusers = getTbValue();
+            //add TwitterUsername in 1st row
+            for (var i = 0; i < accountusers.length; i++) {
+                newdataset[0].splice(-1, 0, accountusers[i]);
+            }
+            //console.log(newdataset)
+            // row loop
+            for (var i = 0; i < getJsonLength(obj); i++) {
+                var json = obj[i];
+                var add = [];
+                for (var j = 0; j < getJsonLength(json); j++) {
+                    if (j != 0) {
+                        add[j] = json[accountusers[j - 1]];
+                    } else {
+                        add[j] = json.category;
                     }
-                    data[j].splice(-1,0,add);
                 }
-            return data;
+                add[add.length] = "";
+                newdataset[newdataset.length] = add;
+            }
+            document.getElementById("load").innerHTML="finish!";
+            dataset = newdataset;
         }
 
 
@@ -188,11 +245,11 @@
         //active chart
         google.charts.setOnLoadCallback(drawBarColors);
 
+
         function drawBarColors() {
-            var c = jsonToChart();
-            //console.log(c);
+            console.log(dataset);
             var data = google.visualization.arrayToDataTable(
-                c
+                dataset
             );
 
             var options = {
